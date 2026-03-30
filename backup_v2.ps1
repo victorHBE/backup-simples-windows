@@ -1,6 +1,6 @@
 # ============================================
-# BACKUP SEGURO - INFOMED / Pasta1
-# MELHOR PRATICA: MANTEM _OLD ATE A PROXIMA EXECUCAO
+# BACKUP SEGURO / Pasta1
+# MELHOR PRATICA DA VERSAO 2: MANTEM _OLD ATE A PROXIMA EXECUCAO 
 # ============================================
 
 # Lista das pastas de origem no Servidor 1
@@ -26,7 +26,7 @@ $LogDir        = "C:\Logs"
 $DataHora      = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 
 # Caminho completo do arquivo de log local
-$LogFile       = Join-Path $LogDir "backup_infomed_producao_$DataHora.log"
+$LogFile       = Join-Path $LogDir "backup_producao_$DataHora.log"
 
 # ============================================
 # FUNCAO DE LOG
