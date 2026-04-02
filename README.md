@@ -129,7 +129,7 @@ cmdkey /add:SERVER /user:SERVER\backup /pass:SUA_SENHA
 ### 📦 2. Executar Backup
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File "C:\scriptBackup\backup.ps1"
+powershell -ExecutionPolicy Bypass -File "C:\scriptBackup\backup_v2.ps1"
 ```
 
 ---
@@ -137,7 +137,7 @@ powershell -ExecutionPolicy Bypass -File "C:\scriptBackup\backup.ps1"
 ### 🔁 3. Executar Restore
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File "C:\scriptBackup\restore_producao.ps1"
+powershell -ExecutionPolicy Bypass -File "C:\scriptBackup\restore_backup.ps1"
 ```
 
 ---
