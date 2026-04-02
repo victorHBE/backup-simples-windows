@@ -21,9 +21,9 @@ Este projeto foi desenvolvido para garantir:
 
 Contém os sistemas ativos:
 
-* `C:\(Sua pasta)`
-* `C:\(Sua pasta)`
-* `C:\(Sua pasta)`
+* `C:\(Sua pasta 1)`
+* `C:\(Sua pasta 2)`
+* `C:\(Sua pasta 3)`
 
 ---
 
@@ -86,18 +86,18 @@ Com acesso restrito por usuário dedicado.
 
 ```
 Backup/
-├── (Sua pasta)
-├── (Sua pasta)
-├── (Sua pasta)
+├── (Sua pasta 1)
+├── (Sua pasta 2)
+├── (Sua pasta 3)
 ```
 
 ### Restore (Servidor 1)
 
 ```
 C:\
-├── (Sua pasta)
-├── (Sua pasta)
-├── (Sua pasta)
+├── (Sua pasta 1)
+├── (Sua pasta 2)
+├── (Sua pasta 3)
 ├── _RESTORE_OLD_(Sua pasta)_YYYY-MM-DD
 ```
 
