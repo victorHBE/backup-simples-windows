@@ -1,80 +1,196 @@
-# backup-simples-windows
-Script basico para fazer backup de pastas entre dois servidores feito por: 
-Victor Hugo Benevides Esteves
--------------------------------------------------------
+# 🧩 Backup & Restore Seguro com PowerShell (Ambiente Windows)
 
-Como executar o Script,
-no Powershell como Administrador digite
+Projeto de automação para **backup e restore seguro de sistemas críticos** em ambiente Windows, utilizando PowerShell e boas práticas de infraestrutura.
 
-powershell -ExecutionPolicy Bypass -File "C:\scriptBackup\backup_v2.ps1"
+---
 
-obs: o comando é tudo em 1 linha
+## 🚀 Visão Geral
 
---------------------------------------------------------------------------------------------------------------
+Este projeto foi desenvolvido para garantir:
 
-Path Notes:
+* 🔒 Integridade dos dados
+* 🔄 Continuidade operacional
+* 🛡️ Segurança no acesso
+* 📊 Rastreabilidade via logs
 
-O que esse script faz
+---
 
-Para cada uma das 3 pastas:
+## 🏗️ Arquitetura
 
-1. verifica se a pasta existe no servidor 1 do que tem as pastas que deseja copiar
-2. verifica se o compartilhamento \\SERVIDOR2\Backup está acessível
+### 🔹 Servidor 1 (Produção)
 
-3. se já existir no servidor de Backup:
+Contém os sistemas ativos:
 
-\\SERVIDOR2\Backup\Pasta1
-\\SERVIDOR2\Backup\Pasta2
-\\SERVIDOR2\Backup\Pasta3
+* `C:\(Sua pasta)`
+* `C:\(Sua pasta)`
+* `C:\(Sua pasta)`
 
-ele apaga a pasta antiga inteira
+---
 
-4. copia novamente a pasta atual do servidor do Infomed
-5. grava tudo no log
+### 🔹 Servidor 2 (Backup)
 
---------------------------------------------------------------------------------------------------------------
+Compartilhamento de rede (Nome ilustrativo, colocar seu nome de servidor e pasta):
 
-Estrutura final no servidor de Backup
+```
+\\SERVER\Backup
+```
 
-Depois de rodar, o destino ficará assim:
+Com acesso restrito por usuário dedicado.
 
-\\SERVIDOR2\Backup\_OLD_Pasta1
-\\SERVIDOR2\Backup\_OLD_Pasta2
-\\SERVIDOR2\Backup\_OLD_Pasta3
-\\SERVIDOR2\Backup\Pasta1
-\\SERVIDOR2\Backup\Pasta2
-\\SERVIDOR2\Backup\Pasta3
-\\SERVIDOR2\Backup\Logs
+---
 
-Ou seja, sempre com a versão mais atual.
+## 🔐 Segurança
 
---------------------------------------------------------------------------------------------------------------
+* Usuário exclusivo: `Seu usuário`
+* Autenticação via `cmdkey`
+* Remoção de acesso `Everyone`
+* Controle via permissões NTFS + Compartilhamento
 
-Onde fica o log
+---
 
-O log será salvo localmente no servidor 1 em:
+## 📦 Backup (PowerShell)
 
-C:\LogsBackup
+### 🔄 Fluxo do processo
 
-Com nome tipo:
+1. Copia arquivos para `_TEMP`
+2. Renomeia produção → `_OLD`
+3. Promove `_TEMP` → produção
+4. Remove versões antigas
+5. Gera logs
 
-backup_2026-03-24_16-30-00.log
+### ✅ Benefícios
 
---------------------------------------------------------------------------------------------------------------
+* Evita corrupção de dados
+* Não sobrescreve diretamente
+* Processo seguro para produção
+* Permite rollback manual
 
-Explicando o ExecutionPolicy Bypass
+---
 
-O Windows às vezes bloqueia scripts .ps1.
+## 🔁 Restore (PowerShell)
 
-Esse comando:
+### 🔄 Fluxo do processo
 
--ExecutionPolicy Bypass
+1. Valida backup na rede
+2. Copia para `_RESTORE_TEMP`
+3. Renomeia produção → `_RESTORE_OLD`
+4. Promove `_RESTORE_TEMP` → produção
+5. Mantém `_RESTORE_OLD` para contingência
+6. Gera logs
 
-permite executar somente naquela chamada, sem mudar permanentemente a política do sistema.
+---
 
---------------------------------------------------------------------------------------------------------------
+## 📁 Estrutura
 
-A versão v2 do script faz as seguintes novas funções:
+### Backup (Servidor 2)
 
--Cria backup temporário antes de excluir o antigo, caso de sucesso com o backup novo , ai sim exclui o antigo.
--Cria também a pasta de log no \\SERVIDOR2.
+```
+Backup/
+├── (Sua pasta)
+├── (Sua pasta)
+├── (Sua pasta)
+```
+
+### Restore (Servidor 1)
+
+```
+C:\
+├── (Sua pasta)
+├── (Sua pasta)
+├── (Sua pasta)
+├── _RESTORE_OLD_(Sua pasta)_YYYY-MM-DD
+```
+
+---
+
+## 🧾 Logs
+
+Logs automáticos para auditoria:
+
+* Backup: `C:\LogsBackup`
+* Restore: `C:\LogsRestore`
+
+---
+
+## ▶️ Execução
+
+### 🔐 1. Configurar credencial de acesso (Servidor 1)
+
+Antes de executar os scripts, é necessário configurar a autenticação para acesso ao servidor de backup:
+
+```powershell
+cmdkey /add:SERVER /user:SERVER\backup /pass:SUA_SENHA
+```
+
+📌 Isso permite que o script acesse automaticamente o compartilhamento de rede sem solicitar login.
+
+---
+
+### 📦 2. Executar Backup
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "C:\scriptBackup\backup.ps1"
+```
+
+---
+
+### 🔁 3. Executar Restore
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "C:\scriptBackup\restore_producao.ps1"
+```
+
+---
+
+### 🧪 4. Validar acesso à rede (opcional)
+
+```powershell
+Test-Path "\\SERVER\Backup"
+```
+
+Se retornar `True`, a conexão está funcionando corretamente.
+
+---
+
+### 🧹 5. (Opcional) Remover credencial
+
+```powershell
+cmdkey /delete:SERVER
+```
+
+
+## ⚠️ Boas Práticas
+
+Antes de executar:
+
+* Encerrar usuários do sistema
+* Garantir arquivos não estejam em uso
+* Validar acesso à rede
+
+Após execução:
+
+* Validar funcionamento
+* Remover `_OLD` somente após validação
+
+---
+
+## 💡 Diferenciais Técnicos
+
+* Estrutura segura (_TEMP → _OLD → Produção)
+* Controle de erros
+* Logs detalhados
+* Segurança de acesso na rede
+* Padrão aplicável em ambiente corporativo
+
+---
+
+## 👨‍💻 Autor
+
+**Victor Hugo**
+Analista de TI
+
+---
+
+## 📌 Observação
+
+Projeto desenvolvido para uso em ambiente corporativo, com foco em segurança e confiabilidade.
