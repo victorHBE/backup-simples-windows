@@ -1,4 +1,4 @@
-# 🧩 Backup & Restore Seguro com PowerShell (Ambiente Windows)
+# 🧩 Backup & Restore com PowerShell (Ambiente Windows)
 
 Projeto de automação para **backup e restore seguro de sistemas críticos** em ambiente Windows, utilizando PowerShell e boas práticas de infraestrutura.
 
