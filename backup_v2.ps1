@@ -148,6 +148,33 @@ Escrever-Log "Arquivo de log local: $LogFile"
 Escrever-Log "===================================================="
 
 # ============================================
+# TRAVA CONTRA EXECUCAO SIMULTANEA
+# ============================================
+# Impede que dois backups rodem ao mesmo tempo
+# (ex.: execucao manual enquanto a tarefa agendada de sabado esta rodando).
+# Usa um Mutex do Windows: se o processo morrer, o Windows libera a trava sozinho.
+$Mutex = New-Object System.Threading.Mutex($false, "Global\BackupSeguro_v2")
+$TravaObtida = $false
+try {
+    $TravaObtida = $Mutex.WaitOne(0)
+}
+catch [System.Threading.AbandonedMutexException] {
+    # Execucao anterior terminou de forma inesperada; a trava passa para esta execucao
+    $TravaObtida = $true
+    Escrever-Log "Trava abandonada por execucao anterior foi recuperada." "WARNING"
+}
+
+if (-not $TravaObtida) {
+    Escrever-Log "Ja existe um backup em execucao. Abortando esta execucao." "WARNING"
+    $Mutex.Dispose()
+    exit 2
+}
+
+# O bloco abaixo fica dentro de try/finally para liberar a trava
+# em qualquer saida do script (sucesso ou exit 1).
+try {
+
+# ============================================
 # VALIDACOES INICIAIS
 # ============================================
 
@@ -379,3 +406,10 @@ catch {
 
 # Encerramento do script com codigo de sucesso
 exit 0
+
+}
+finally {
+    # Libera a trava de execucao simultanea
+    try { $Mutex.ReleaseMutex() } catch { }
+    $Mutex.Dispose()
+}
